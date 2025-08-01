@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
                 Box(modifier = Modifier.fillMaxSize()) {
                     val engine = rememberEngine()
                     val modelLoader = rememberModelLoader(engine)
-                    val environmentLoader = rememberEnvironmentLoader(engine)
+//                    val environmentLoader = rememberEnvironmentLoader(engine)
 
                     val centerNode = rememberNode(engine)
 
@@ -61,14 +61,14 @@ class MainActivity : ComponentActivity() {
                         centerNode.addChildNode(this)
                     }
 
-                    val cameraTransition = rememberInfiniteTransition(label = "CameraTransition")
-                    val cameraRotation by cameraTransition.animateRotation(
-                        initialValue = Rotation(y = 0.0f),
-                        targetValue = Rotation(y = 360.0f),
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(durationMillis = 7.seconds.toInt(MILLISECONDS))
-                        )
-                    )
+//                    val cameraTransition = rememberInfiniteTransition(label = "CameraTransition")
+//                    val cameraRotation by cameraTransition.animateRotation(
+//                        initialValue = Rotation(y = 0.0f),
+//                        targetValue = Rotation(y = 360.0f),
+//                        animationSpec = infiniteRepeatable(
+//                            animation = tween(durationMillis = 7.seconds.toInt(MILLISECONDS))
+//                        )
+//                    )
 
                     Scene(
                         modifier = Modifier.fillMaxSize(),
@@ -85,16 +85,16 @@ class MainActivity : ComponentActivity() {
                                     modelInstance = modelLoader.createModelInstance(
                                         assetFileLocation = "Ceres.glb"
                                     ),
-                                    scaleToUnits = 0.25f
+                                    scaleToUnits = 0.6f
                                 )
                             }),
 //                        environment = environmentLoader.createHDREnvironment(
 //                            assetFileLocation = "environments/sky_2k.hdr"
 //                        )!!,
-                        onFrame = {
-                            centerNode.rotation = cameraRotation
-                            cameraNode.lookAt(centerNode)
-                        },
+//                        onFrame = {
+//                            centerNode.rotation = cameraRotation
+//                            cameraNode.lookAt(centerNode)
+//                        },
                         onGestureListener = rememberOnGestureListener(
                             onDoubleTap = { _, node ->
                                 node?.apply {
@@ -103,34 +103,34 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     )
-                    Image(
-                        modifier = Modifier
-                            .width(192.dp)
-                            .align(Alignment.BottomEnd)
-                            .navigationBarsPadding()
-                            .padding(16.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.primaryContainer.copy(
-                                    alpha = 0.5f
-                                ),
-                                shape = MaterialTheme.shapes.medium
-                            )
-                            .padding(8.dp),
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                        contentDescription = "Logo"
-                    )
-                    TopAppBar(
-                        title = {
-                            Text(
-                                text = stringResource(id = R.string.app_name)
-                            )
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                            titleContentColor = MaterialTheme.colorScheme.onPrimary
-
-                        )
-                    )
+//                    Image(
+//                        modifier = Modifier
+//                            .width(192.dp)
+//                            .align(Alignment.BottomEnd)
+//                            .navigationBarsPadding()
+//                            .padding(16.dp)
+//                            .background(
+//                                color = MaterialTheme.colorScheme.primaryContainer.copy(
+//                                    alpha = 0.5f
+//                                ),
+//                                shape = MaterialTheme.shapes.medium
+//                            )
+//                            .padding(8.dp),
+//                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
+//                        contentDescription = "Logo"
+//                    )
+//                    TopAppBar(
+//                        title = {
+//                            Text(
+//                                text = stringResource(id = R.string.app_name)
+//                            )
+//                        },
+//                        colors = TopAppBarDefaults.topAppBarColors(
+//                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+//                            titleContentColor = MaterialTheme.colorScheme.onPrimary
+//
+//                        )
+//                    )
                 }
             }
         }
