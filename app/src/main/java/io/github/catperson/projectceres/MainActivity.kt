@@ -3,47 +3,47 @@ package io.github.catperson.projectceres
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import io.github.catperson.projectceres.local.Cache
+import io.github.catperson.projectceres.remote.NasaRemote
 import io.github.catperson.projectceres.ui.DetailsScreen
+import io.github.catperson.projectceres.ui.DetailsVM
+import io.github.catperson.projectceres.ui.WelcomeRepo
 import io.github.catperson.projectceres.ui.WelcomeScreen
+import io.github.catperson.projectceres.ui.WelcomeVM
 import io.github.catperson.projectceres.ui.theme.ProjectCeresTheme
-import io.github.sceneview.Scene
-import io.github.sceneview.math.Position
-import io.github.sceneview.node.ModelNode
-import io.github.sceneview.rememberCameraManipulator
-import io.github.sceneview.rememberCameraNode
-import io.github.sceneview.rememberEngine
-import io.github.sceneview.rememberModelLoader
-import io.github.sceneview.rememberNode
-import io.github.sceneview.rememberOnGestureListener
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
-
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val cache = Cache()
+        val nasaRemote =  NasaRemote(HttpClient(CIO){
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                })
+            }})
+
+        val welcomeVM = WelcomeVM(repo = WelcomeRepo(nasaRemote, cache))
+        val detailsVM = DetailsVM()
 
         setContent {
             ProjectCeresTheme {
                 val navController = rememberNavController()
-
                 NavHost(
                     navController = navController,
                     startDestination = WelcomeScreen.route
                 ) {
-                    composable(WelcomeScreen.route) { WelcomeScreen.CreateView(navController) }
-                    composable(DetailsScreen.route) { DetailsScreen.CreateView(navController) }
+                    composable(WelcomeScreen.route) { WelcomeScreen.CreateView(navController, welcomeVM) }
+                    composable(DetailsScreen.route) { DetailsScreen.CreateView(navController, detailsVM) }
                 }
             }
         }

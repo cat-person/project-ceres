@@ -9,11 +9,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 
-object DetailsScreen : Screen("details") {
+class DetailsRepo() {
+
+}
+
+class DetailsVM() : ViewModel() {
+    // Define ViewModel factory in a companion object
+}
+
+
+object DetailsScreen : Screen<DetailsVM>("details") {
     @Composable
-    override fun CreateView(navController: NavController) {
+    override fun CreateView(navController: NavController, vm: DetailsVM) {
         Scaffold(
             content = { innerPadding ->
                 Box(
