@@ -1,6 +1,7 @@
 package io.github.catperson.projectceres.ui
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -15,17 +16,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import dev.romainguy.kotlin.math.Float3
 import io.github.catperson.projectceres.local.Cache
 import io.github.catperson.projectceres.remote.NasaRemote
 import io.github.catperson.projectceres.remote.StellarBody
 import io.github.sceneview.Scene
+import io.github.sceneview.collision.Vector3
+import io.github.sceneview.model.Model
 import io.github.sceneview.node.ModelNode
+import io.github.sceneview.node.PlaneNode
 import io.github.sceneview.rememberCameraManipulator
 import io.github.sceneview.rememberCameraNode
 import io.github.sceneview.rememberEngine
@@ -57,6 +61,38 @@ class WelcomeVM(private val repo: WelcomeRepo) : ViewModel() {
     // Define ViewModel factory in a companion object
 }
 
+//val start = Position(0f, 0f, -2f) // Start point
+//val end = Position(1f, 1f, -2f)   // End point
+//
+//// Calculate direction and length
+//val direction = end - start
+//val length = direction.length()
+//
+//// Calculate midpoint
+//val midpoint = (start + end) * 0.5f
+//
+//// Create rotation from default "up" (Y-axis) to the line's direction
+//val rotation = Quaternion.fromToRotation(
+//    Vector3.up(),
+//    direction.normalized()
+//)
+//
+//// Create a thin cylinder (line)
+//val lineNode = ModelNode().apply {
+//    position = midpoint
+//    this.rotation = rotation
+//    model = Model(
+//        shape = ShapeCylinder(
+//            center = Vector3.zero(),
+//            height = length,
+//            radius = 0.005f // Adjust thickness here
+//        ),
+//        material = ColorMaterial().apply {
+//            baseColor = Color(android.graphics.Color.BLUE)
+//        }
+//    )
+//}
+
 object WelcomeScreen : Screen<WelcomeVM>("welcome") {
     @Composable
     override fun CreateView(navController: NavController, vm: WelcomeVM) {
@@ -68,37 +104,19 @@ object WelcomeScreen : Screen<WelcomeVM>("welcome") {
                 Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
                     val engine = rememberEngine()
                     val modelLoader = rememberModelLoader(engine)
-                    val centerNode = rememberNode(engine)
 
-                    val cameraNode = rememberCameraNode(engine) {
-                        lookAt(centerNode)
-                        centerNode.addChildNode(this)
-                    }
+                    val coordNode = PlaneNode(engine)
+                    val modelNode = ModelNode(
+                        modelInstance = modelLoader.createModelInstance(
+                            assetFileLocation = "Ceres.glb"
+                        ),
+                        scaleToUnits = 0.6f
+                    )
+
                     Scene(
                         modifier = Modifier.fillMaxWidth().height(480.dp),
                         engine = engine,
-                        modelLoader = modelLoader,
-                        cameraNode = cameraNode,
-                        cameraManipulator = rememberCameraManipulator(
-                            orbitHomePosition = cameraNode.worldPosition,
-                            targetPosition = centerNode.worldPosition
-                        ),
-                        childNodes = listOf(centerNode,
-                            rememberNode {
-                                ModelNode(
-                                    modelInstance = modelLoader.createModelInstance(
-                                        assetFileLocation = "Ceres.glb"
-                                    ),
-                                    scaleToUnits = 0.6f
-                                )
-                            }),
-                        onGestureListener = rememberOnGestureListener(
-                            onDoubleTap = { _, node ->
-                                node?.apply {
-                                    scale *= 2.0f
-                                }
-                            }
-                        )
+                        childNodes = listOf(coordNode, modelNode),
                     )
 
                     Button(
