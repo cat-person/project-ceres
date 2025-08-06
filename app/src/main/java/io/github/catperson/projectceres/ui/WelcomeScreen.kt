@@ -23,6 +23,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import io.github.catperson.projectceres.local.Cache
 import io.github.catperson.projectceres.remote.NasaRemote
+import io.github.catperson.projectceres.remote.StellarBody
 import io.github.sceneview.Scene
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.rememberCameraManipulator
@@ -36,23 +37,23 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class WelcomeRepo(private val ceresRemote: NasaRemote, private val cache: Cache) {
-    suspend fun getCeresDistance(): Double {
+    suspend fun getCeresDistance(): StellarBody {
         return ceresRemote.getCeresDistance();
     }
 }
 
 class WelcomeVM(private val repo: WelcomeRepo) : ViewModel() {
-    private val _stateFlow = MutableStateFlow(State(0.0))
+    private val _stateFlow = MutableStateFlow(State(StellarBody.None))
     val state = _stateFlow.asStateFlow()
 
     init {
         viewModelScope.launch {
-            val distance = repo.getCeresDistance()
-            _stateFlow.value = State(distance)
+            val stellarBody = repo.getCeresDistance()
+            _stateFlow.value = State(stellarBody)
         }
     }
 
-    data class State(val distance: Double)
+    data class State(val stellarBody: StellarBody)
     // Define ViewModel factory in a companion object
 }
 
@@ -61,7 +62,7 @@ object WelcomeScreen : Screen<WelcomeVM>("welcome") {
     override fun CreateView(navController: NavController, vm: WelcomeVM) {
 
         val state = vm.state.collectAsState()
-
+        val stellarBody = state.value.stellarBody
         Scaffold(
             content = { innerPadding ->
                 Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
@@ -105,27 +106,27 @@ object WelcomeScreen : Screen<WelcomeVM>("welcome") {
                             navController.navigate(DetailsScreen.route)
                         }
                     ) {
-                        Text("Go to Details")
+                        Text("Details")
                     }
 
                     Row() {
                         Box(modifier = Modifier.weight(1f)) {
                             Text("Radius")
                         }
-                        Text("ALOT")
+                        Text("${stellarBody.perihelion}")
                     }
                     Row() {
                         Box(modifier = Modifier.weight(1f)) {
                             Text("Mass")
                         }
-                        Text("ALOT")
+                        Text("${stellarBody.mass.massValue}*10^${stellarBody.mass.massExponent}")
                     }
 
                     Row() {
                         Box(modifier = Modifier.weight(1f)) {
                             Text("Distance")
                         }
-                        Text(state.value.distance.toString())
+                        Text("${stellarBody.aphelion}")
                     }
 
                 }
